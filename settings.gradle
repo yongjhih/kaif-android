@@ -1,1 +1,5 @@
-include ':app', ':retry-stale-processor'
+include ':app'
+//include ':retrofit'
+//project(':retrofit').projectDir = new File(settingsDir, '../retrofit2/retrofit')
+//include ':retrofit-processor'
+//project(':retrofit-processor').projectDir = new File(settingsDir, '../retrofit2/retrofit-processor')

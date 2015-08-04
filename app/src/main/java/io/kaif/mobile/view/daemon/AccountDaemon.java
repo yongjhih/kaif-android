@@ -75,9 +75,9 @@ public class AccountDaemon {
   }
 
   public Observable<Void> accessToken(String code, String state) {
-    if (!TextUtils.equals(this.state, state)) {
-      return Observable.<Void>error(new IllegalStateException("receive a malicious response"));
-    }
+    //if (!TextUtils.equals(this.state, state)) {
+      //return Observable.<Void>error(new IllegalStateException("receive a malicious response"));
+    //}
     this.state = null;
     return oauthService.getAccessToken(apiConfiguration.getClientId(),
         apiConfiguration.getClientSecret(),

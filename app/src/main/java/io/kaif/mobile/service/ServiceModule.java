@@ -40,50 +40,38 @@ public class ServiceModule {
 
   @Provides
   @Singleton
-  public FeedService provideFeedService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(FeedService.class);
+  public FeedService provideFeedService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return FeedClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
   @Singleton
-  public AccountService provideAccountService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(AccountService.class);
+  public AccountService provideAccountService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return AccountClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
   @Singleton
-  public ZoneService provideZoneService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(ZoneService.class);
+  public ZoneService provideZoneService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return ZoneClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
   @Singleton
-  public VoteService provideVoteService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(VoteService.class);
+  public VoteService provideVoteService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return VoteClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
   @Singleton
-  public DebateService provideDebateService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(DebateService.class);
+  public DebateService provideDebateService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return DebateClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
   @Singleton
-  public ArticleService provideArticleService(
-      @Named("apiRestAdapter") RetrofitRetryStaleProxy restAdapter) {
-    return restAdapter.create(ArticleService.class);
-  }
-
-  @Provides
-  @Singleton
-  public OauthService provideOauthService(@Named("oauthRestAdapter") RestAdapter restAdapter) {
-    return restAdapter.create(OauthService.class);
+  public ArticleService provideArticleService(OkHttpClient okHttpClient, RequestInterceptor requestInterceptor) {
+    return ArticleClient.builder().okHttpClient(okHttpClient).requestInterceptor(requestInterceptor).build();
   }
 
   @Provides
@@ -94,9 +82,15 @@ public class ServiceModule {
       final AccessTokenInfo accountTokenInfo = accessTokenManager.findAccount();
       if (accountTokenInfo != null) {
         request.addHeader("Authorization", accountTokenInfo.getAuthorization());
-        request.addHeader("Content-Type", "application/json;charset=UTF-8");
       }
     };
+  }
+
+  @Provides
+  @Singleton
+  public OauthService provideOauthService(@Named("oauthRestAdapter") RestAdapter restAdapter) {
+    return restAdapter.create(OauthService.class);
+    //return Oauth.create();
   }
 
   @Provides
@@ -108,25 +102,13 @@ public class ServiceModule {
         application.getString(R.string.redirect_uri));
   }
 
-  @Provides
-  @Named("apiRestAdapter")
-  @Singleton
-  RetrofitRetryStaleProxy provideApiRestAdapter(RequestInterceptor interceptor,
-      ApiConfiguration apiConfiguration,
-      OkHttpClient okHttpClient) {
-
-    //custom gson for api access
-    final Gson autoParcelGson = new GsonBuilder().registerTypeAdapterFactory(new AutoParcelAdapterFactory())
-        .create();
-    final Gson restApiGson = new GsonBuilder().registerTypeHierarchyAdapter(Object.class,
-        new ApiResponseDeserializer(autoParcelGson)).create();
-
-    return new RetrofitRetryStaleProxy(new RestAdapter.Builder().setRequestInterceptor(interceptor)
-        .setEndpoint(apiConfiguration.getEndPoint())
-        .setClient(new OkClient(okHttpClient))
-        .setConverter(new GsonConverter(restApiGson))
-        .setLogLevel(BuildConfig.DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE)
-        .build());
+  public static class AutoGsonConverter extends GsonConverter {
+    public AutoGsonConverter() {
+      super(new GsonBuilder().registerTypeHierarchyAdapter(Object.class,
+            new ApiResponseDeserializer(new GsonBuilder()
+              .registerTypeAdapterFactory(new AutoParcelAdapterFactory())
+              .create())).create());
+    }
   }
 
   @Provides
@@ -153,4 +135,5 @@ public class ServiceModule {
   Cache provideOkHttpCache() {
     return new Cache(application.getExternalCacheDir(), CACHE_SIZE);
   }
+
 }

@@ -30,19 +30,10 @@ android {
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
   signingConfigs {
-    def Properties props = new Properties()
-    props.load(new FileInputStream(file('../secret/password.properties')))
-
     debug {
-      storeFile file("../secret/kaif-keystore.jks")
-      storePassword props["KEY_STORE_PASSWORD"]
-    }
+}
     release {
-      storeFile file("../secret/kaif-keystore.jks")
-      storePassword props["KEY_STORE_PASSWORD"]
-      keyAlias "ReleaseKey"
-      keyPassword props["RELEASE_KEY_PASSWORD"]
-    }
+}
   }
 
   buildTypes {
@@ -50,12 +41,12 @@ android {
     props.load(new FileInputStream(file('../secret/api.properties')))
 
     debug {
-      signingConfig signingConfigs.debug
+      //signingConfig signingConfigs.debug
       buildConfigField 'String', 'CLIENT_ID', "\"" + props["CLIENT_ID"] + "\""
       buildConfigField 'String', 'CLIENT_SECRET', "\"" + props["CLIENT_SECRET"] + "\""
     }
     release {
-      signingConfig signingConfigs.release
+      //signingConfig signingConfigs.release
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
       buildConfigField 'String', 'CLIENT_ID', "\"" + props["CLIENT_ID"] + "\""
       buildConfigField 'String', 'CLIENT_SECRET', "\"" + props["CLIENT_SECRET"] + "\""
@@ -85,7 +76,7 @@ dependencies {
 
   apt 'com.github.frankiesardo:auto-parcel-processor:0.3'
   apt "com.google.dagger:dagger-compiler:2.0"
-  apt project(':retry-stale-processor')
+  //apt project(':retry-stale-processor')
 
   provided 'javax.annotation:jsr250-api:1.0'
   provided 'com.github.frankiesardo:auto-parcel:0.3'
@@ -98,6 +89,10 @@ dependencies {
   compile 'io.reactivex:rxandroid-framework:0.24.0'
   compile 'com.jakewharton:butterknife:6.1.0'
   compile 'com.squareup.retrofit:retrofit:1.9.0'
+  compile 'com.infstory:retrofit:2.0.1'
+  apt 'com.infstory:retrofit-processor:2.0.1'
+  //compile project(':retrofit')
+  //apt project(':retrofit-processor')
   compile 'com.google.dagger:dagger:2.0'
   compile 'com.squareup.okhttp:okhttp-urlconnection:2.3.0'
   compile 'com.squareup.okhttp:okhttp:2.3.0'
